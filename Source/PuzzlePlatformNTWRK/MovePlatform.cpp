@@ -10,6 +10,17 @@ AMovePlatform::AMovePlatform()
 	SetMobility(EComponentMobility::Movable);
 }
 
+void AMovePlatform::AddActiveTrigger()
+{
+	ActiveTriggers++;
+}
+
+void AMovePlatform::RemoveActiveTrigger()
+{
+	ActiveTriggers--;
+	ActiveTriggers = FMath::Clamp(ActiveTriggers, 0, 5);
+}
+
 void AMovePlatform::BeginPlay()
 {
 	Super::BeginPlay();
@@ -29,22 +40,24 @@ void AMovePlatform::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (HasAuthority())
+	if (ActiveTriggers > 0)
 	{
-		FVector location = GetActorLocation();
-		float JournyLength = (GlobalTargetLocation - GlobalStartLocation).Size();
-		float JournyTravelled = (location - GlobalStartLocation).Size();
-
-		if (JournyTravelled >= JournyLength)
+		if (HasAuthority())
 		{
-			FVector SwapLocation = GlobalStartLocation;
-			GlobalStartLocation = GlobalTargetLocation;
-			GlobalTargetLocation = SwapLocation;
+			FVector location = GetActorLocation();
+			float JournyLength = (GlobalTargetLocation - GlobalStartLocation).Size();
+			float JournyTravelled = (location - GlobalStartLocation).Size();
+
+			if (JournyTravelled >= JournyLength)
+			{
+				FVector SwapLocation = GlobalStartLocation;
+				GlobalStartLocation = GlobalTargetLocation;
+				GlobalTargetLocation = SwapLocation;
+			}
+			FVector Direction = (GlobalTargetLocation - GlobalStartLocation).GetSafeNormal();
+
+			location += Speed * DeltaTime * Direction;
+			SetActorLocation(location);
 		}
-		FVector Direction = (GlobalTargetLocation - GlobalStartLocation).GetSafeNormal();
-		
-		location += Speed * DeltaTime * Direction;
-		SetActorLocation(location);
 	}
-	
 }
