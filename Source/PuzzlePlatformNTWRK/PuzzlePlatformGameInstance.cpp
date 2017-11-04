@@ -1,13 +1,18 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PuzzlePlatformGameInstance.h"
+
+#include "UObject/ConstructorHelpers.h"
 #include "Engine/Engine.h"
 
-
-
+#include "PlatformTrigger.h"
 UPuzzlePlatformGameInstance::UPuzzlePlatformGameInstance(const FObjectInitializer& ObjectInitializer)
 {
-	UE_LOG(LogTemp, Warning, TEXT("GameInstance Constructor"));
+    ConstructorHelpers::FClassFinder<APlatformTrigger> PlatformTriggerBPClass(TEXT("/Game/PuzzlePlatforms/PlatformTrigger_BP"));
+
+	if (!ensure(PlatformTriggerBPClass.Class != nullptr)) return;
+
+	UE_LOG(LogTemp, Warning, TEXT("Found class %s"), *PlatformTriggerBPClass.Class->GetName());
 
 }
 
